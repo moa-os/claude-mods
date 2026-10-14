@@ -1,0 +1,12 @@
+{
+  "name": "claude-mods",
+  "owner": { "name": "Moa" },
+  "description": "Mods for Claude Code: small plugins that change its interface.",
+  "plugins": [
+    {
+      "name": "usage-rings",
+      "source": "./usage-rings",
+      "description": "Rings above the prompt showing the 5-hour, weekly and Fable weekly usage limits."
+    }
+  ]
+}
