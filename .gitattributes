@@ -1,0 +1,2 @@
+# The mods are used on Windows and macOS: keep one line ending everywhere.
+* text=auto eol=lf
