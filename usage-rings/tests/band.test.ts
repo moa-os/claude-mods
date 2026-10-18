@@ -1,3 +1,4 @@
+import type { RenderElement } from 'claude-code'
 import { expect, mock, test } from 'claude-code/testing'
 
 const NOW = Date.parse('2026-10-13T14:00:00Z')
@@ -25,8 +26,12 @@ const CARD = JSON.stringify({
   },
 })
 
+// What the engine answers beneath every plugin: its own (empty) band.
+const ENGINE_BAND = { type: 'engine', ref: 0 } as const
+
 test('the band waits for data, then shows all three windows on every surface', async ($, on) => {
   const clock = mock.clock(on, { now: NOW })
+  on('ui.render', () => ENGINE_BAND)
   on('session.start', ($, e) => ({ cwd: e.cwd }))
   on('session.measure', ($, e) => ({ changed: e.changed }))
   on('session.usage', () => ({
@@ -48,6 +53,7 @@ test('the band waits for data, then shows all three windows on every surface', a
     'Weekly: no reading yet',
     'Fable: no reading yet',
   ])
+  expect(await emptyDesktop.find({ type: 'Text', text: '–' })).toBeDefined()
   await emptyDesktop.unmount()
 
   await $.session.start({ cwd: '.' } as never)
@@ -70,6 +76,15 @@ test('the band waits for data, then shows all three windows on every surface', a
   ])
   expect(await desktop.find({ type: 'Text', text: 'Fable' })).toBeDefined()
   expect(await desktop.find({ type: 'Text', text: '3h 59m' })).toBeDefined()
+  // The small rings: short names, no number drawn inside, the details on hover.
+  expect(await desktop.find({ type: 'Text', text: '5h' })).toBeDefined()
+  expect(await desktop.find({ type: 'Text', text: 'Week' })).toBeDefined()
+  // The percent sits right beside each ring.
+  expect(await desktop.find({ type: 'Text', text: '23%' })).toBeDefined()
+  expect(await desktop.find({ type: 'Text', text: '85%' })).toBeDefined()
+  expect(rings.every(r => r.props.width === 14 && r.props.height === 14)).toBe(true)
+  expect(rings.every(r => !String(r.props.source).includes('<text'))).toBe(true)
+  expect(String(rings[0]?.props.source)).toContain('<title>5-hour: 23% used, resets in 3h 59m</title>')
   // Ring, label and countdown sit side by side: no box stacks them.
   const boxes = await desktop.findAll({ type: 'Box' })
   expect(boxes.every(b => b.props.flexDirection === 'row')).toBe(true)
@@ -90,7 +105,7 @@ test('the band yields to a survey', async ($, on) => {
   mock.clock(on, { now: NOW })
   on('ui.render', ($, e) => {
     const { Text } = $.ui.resolve(e)
-    return h(Text, {}, 'engine band')
+    return h(Text, {}, 'engine band') as RenderElement
   })
   const ui = await $.ui.mount({
     plugin: 'usage-rings',
@@ -101,4 +116,19 @@ test('the band yields to a survey', async ($, on) => {
   expect(await ui.find({ text: '5-hour' })).toBeUndefined()
   expect(await ui.find({ text: 'engine band' })).toBeDefined()
   await ui.unmount()
+})
+
+test("the band leaves room for another mod's drawing", async ($, on) => {
+  mock.clock(on, { now: NOW })
+  on('ui.render', ($, e) => {
+    const { Text } = $.ui.resolve(e)
+    return h(Text, {}, 'another mod') as RenderElement
+  })
+
+  for (const surface of ['terminal', 'desktop'] as const) {
+    const ui = await $.ui.mount({ plugin: 'usage-rings', surface, ...BAND })
+    expect(await ui.find({ text: 'another mod' })).toBeDefined()
+    expect(await ui.find({ text: 'Fable' })).toBeDefined()
+    await ui.unmount()
+  }
 })

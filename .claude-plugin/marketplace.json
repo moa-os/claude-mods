@@ -7,6 +7,11 @@
       "name": "usage-rings",
       "source": "./usage-rings",
       "description": "Rings above the prompt showing the 5-hour, weekly and Fable weekly usage limits."
+    },
+    {
+      "name": "control-panel",
+      "source": "./control-panel",
+      "description": "Your control panel: a pill above the prompt, or /cp, opens a panel that greets you and launches your mods."
     }
   ]
 }
