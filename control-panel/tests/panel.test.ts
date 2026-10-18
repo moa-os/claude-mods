@@ -1,7 +1,7 @@
 import type { CommandInfo } from 'claude-code'
 import { describe, expect, test } from 'claude-code/testing'
 
-import { dateLabel, displayName, greetingOf, launchablesOf, partOfDay, titleOf } from '../hooks/panel'
+import { accountNameOf, dateLabel, displayName, greetingOf, launchablesOf, partOfDay, titleOf } from '../hooks/panel'
 
 const command = (name: string, source: CommandInfo['source'], plugin?: string, description = ''): CommandInfo =>
   plugin === undefined ? { name, source, description } : { name, source, plugin, description }
@@ -34,6 +34,14 @@ describe('panel', () => {
     expect(displayName('')).toBe('')
     expect(titleOf('Moa')).toBe("Moa's CP")
     expect(titleOf('')).toBe('Control panel')
+  })
+
+  test("reads the Claude account's display name from Claude Code's config file", () => {
+    expect(accountNameOf(JSON.stringify({ oauthAccount: { displayName: 'Moa', fullName: 'Mohamed' } }))).toBe('Moa')
+    expect(accountNameOf(JSON.stringify({ oauthAccount: { fullName: 'Mohamed' } }))).toBe('Mohamed')
+    expect(accountNameOf(JSON.stringify({ oauthAccount: { displayName: '  ' } }))).toBeUndefined()
+    expect(accountNameOf(JSON.stringify({ projects: {} }))).toBeUndefined()
+    expect(accountNameOf('not json')).toBeUndefined()
   })
 
   test('writes the date the way the greeting strip shows it', () => {
