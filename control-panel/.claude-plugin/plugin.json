@@ -1,0 +1,6 @@
+{
+  "name": "control-panel",
+  "version": "0.1.0",
+  "description": "Your control panel: a pill above the prompt, or /cp, opens a panel that greets you and launches your mods.",
+  "author": { "name": "Moa" }
+}

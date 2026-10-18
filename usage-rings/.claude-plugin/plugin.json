@@ -1,6 +1,6 @@
 {
   "name": "usage-rings",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Rings above the prompt showing the 5-hour, weekly and Fable weekly usage limits.",
   "author": { "name": "Moa" },
   "types": "./types/index.d.ts"

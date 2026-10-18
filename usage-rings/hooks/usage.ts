@@ -8,10 +8,11 @@ export type Level = 'none' | 'low' | 'mid' | 'high'
 
 export const EMPTY: Limits = { fiveHour: null, weekly: null, fable: null }
 
-export const RINGS: readonly { ring: Ring; label: string }[] = [
-  { ring: 'fiveHour', label: '5-hour' },
-  { ring: 'weekly', label: 'Weekly' },
-  { ring: 'fable', label: 'Fable' },
+// `short` is the name the desktop's small rings carry; `label` names the window everywhere else.
+export const RINGS: readonly { ring: Ring; label: string; short: string }[] = [
+  { ring: 'fiveHour', label: '5-hour', short: '5h' },
+  { ring: 'weekly', label: 'Weekly', short: 'Week' },
+  { ring: 'fable', label: 'Fable', short: 'Fable' },
 ]
 
 const MINUTE = 60_000
@@ -130,24 +131,26 @@ const SVG_COLORS: Record<Level, string> = {
   high: '#e5484d',
 }
 
+/** The ring's color, also used for the percent written beside it. */
+export function ringColor(percent: number | null): string {
+  return SVG_COLORS[levelOf(percent)]
+}
+
 // Drawn as an image, so it can't follow the page's theme: the track is a translucent grey and
-// the arc and number use mid-tone colors that read on both light and dark backgrounds.
-export function ringSvg(percent: number | null): string {
-  const color = SVG_COLORS[levelOf(percent)]
+// the arc uses mid-tone colors that read on both light and dark backgrounds. Drawn small, so it
+// carries no number: `title` (the percent and reset time) shows when the pointer rests on it.
+export function ringSvg(percent: number | null, title: string): string {
+  const color = ringColor(percent)
   const value = percent ?? 0
-  const label = percent === null ? '–' : `${Math.round(percent)}%`
-  // Drawn at about 30px, so the number takes most of the ring to stay readable; "100%" needs
-  // a smaller size to fit inside the track.
-  const fontSize = label.length > 3 ? 12 : 14
   const arc =
     value > 0
-      ? `<circle cx="20" cy="20" r="18" fill="none" stroke="${color}" stroke-width="3.5" stroke-linecap="round" pathLength="100" stroke-dasharray="${value} 100" transform="rotate(-90 20 20)"/>`
+      ? `<circle cx="15" cy="15" r="11" fill="none" stroke="${color}" stroke-width="4.5" stroke-linecap="round" pathLength="100" stroke-dasharray="${value} 100" transform="rotate(-90 15 15)"/>`
       : ''
   return (
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="40" height="40">` +
-    `<circle cx="20" cy="20" r="18" fill="none" stroke="#8a8a8a" stroke-opacity="0.3" stroke-width="3.5"/>` +
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30" width="30" height="30">` +
+    `<title>${title}</title>` +
+    `<circle cx="15" cy="15" r="11" fill="none" stroke="#8a8a8a" stroke-opacity="0.3" stroke-width="4.5"/>` +
     arc +
-    `<text x="20" y="20" text-anchor="middle" dominant-baseline="central" font-family="system-ui,-apple-system,'Segoe UI',sans-serif" font-size="${fontSize}" font-weight="700" fill="${color}">${label}</text>` +
     `</svg>`
   )
 }
