@@ -5,6 +5,7 @@ import {
   PILL_HEIGHT,
   STRIP_HEIGHT,
   TILE_SIZE,
+  accountNameOf,
   dateLabel,
   dayIconSvg,
   displayName,
@@ -25,8 +26,27 @@ const MINUTE = 60_000
 // The terminal's stand-ins for the strip's icons.
 const DAY_GLYPH = { morning: '☀', afternoon: '☀', evening: '☾', night: '☾' } as const
 
+// The Claude account's name, read once a load: Claude Code's config file can be large.
+let accountName: string | undefined
+
+// Claude Code keeps the signed-in account in `.claude.json`, in CLAUDE_CONFIG_DIR when set, else
+// in the home folder: HOME on macOS and Linux, USERPROFILE on Windows.
+async function readAccountName($: EngineInterface): Promise<string | undefined> {
+  const folder = (await $.env.get('CLAUDE_CONFIG_DIR')) ?? (await $.env.get('HOME')) ?? (await $.env.get('USERPROFILE'))
+  if (folder === undefined) return undefined
+  try {
+    return accountNameOf(await $.fs.read(`${folder}/.claude.json`))
+  } catch {
+    return undefined
+  }
+}
+
+// The name the panel is titled with: the Claude account's, else the login name, capitalised
+// (USER on macOS and Linux, USERNAME on Windows).
 async function nameOf($: EngineInterface): Promise<string> {
-  return displayName(await $.env.get('USER'))
+  const account = accountName ?? (await readAccountName($))
+  if (account !== undefined) return account
+  return displayName((await $.env.get('USER')) ?? (await $.env.get('USERNAME')))
 }
 
 async function timeOf($: EngineInterface) {
@@ -49,6 +69,7 @@ async function launch($: EngineInterface, command: string) {
 export const register: Register = on => {
   on('session.start', async ($, e, next) => {
     const started = await next(e)
+    accountName = await readAccountName($)
     await $.command.register({ name: COMMAND, description: 'Open your control panel' })
     // The greeting and the pill's colours follow the time of day.
     $.clock.every(MINUTE, () => $.ui.invalidate('ui.render'))

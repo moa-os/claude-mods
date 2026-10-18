@@ -42,6 +42,24 @@ export function displayName(user: string | undefined): string {
   return user.charAt(0).toUpperCase() + user.slice(1)
 }
 
+/**
+ * The Claude account's name from Claude Code's config file (`.claude.json`): its display name,
+ * else its full name; undefined when the file holds neither, or is no JSON.
+ */
+export function accountNameOf(configText: string): string | undefined {
+  let config: unknown
+  try {
+    config = JSON.parse(configText)
+  } catch {
+    return undefined
+  }
+  const account = (config as { oauthAccount?: { displayName?: unknown; fullName?: unknown } } | null)?.oauthAccount
+  for (const name of [account?.displayName, account?.fullName]) {
+    if (typeof name === 'string' && name.trim() !== '') return name.trim()
+  }
+  return undefined
+}
+
 export function titleOf(name: string): string {
   return name === '' ? 'Control panel' : `${name}'s CP`
 }

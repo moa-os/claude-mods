@@ -22,7 +22,10 @@ percent used and the time until it resets, and turns amber at 50% and red at 80%
 ### control-panel
 
 A control panel for your mods. A pill at the right end of the band above the prompt says
-"✦ Moa's CP" (with your own login name), and clicking it, or typing `/cp`, opens the panel.
+"✦ Moa's CP" (with your own name), and clicking it, or typing `/cp`, opens the panel.
+
+- Your name is your Claude account's display name, which Claude Code keeps in its config file on
+  each machine; without one, it's your login name (`USER`, or `USERNAME` on Windows).
 
 - The panel greets you by the time of day ("Good evening, Moa") on a strip whose colours change
   from morning to night, as the pill's do.

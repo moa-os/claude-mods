@@ -76,6 +76,36 @@ describe('register', () => {
     await desktop.unmount()
   })
 
+  test("the pill is named after the Claude account's display name", async ($, on) => {
+    mock.clock(on, { now: EVENING })
+    const env: Record<string, string> = { HOME: '/Users/moa', USER: 'moa' }
+    on('env.get', ($, e) => ({ value: env[e.name] }))
+    on('fs.read', ($, e) => {
+      if (e.path !== '/Users/moa/.claude.json') throw new Error(`unexpected read of ${e.path}`)
+      return { value: JSON.stringify({ oauthAccount: { displayName: 'Mo' } }) }
+    })
+    on('ui.render', () => ({ type: 'engine', ref: 0 }))
+
+    const ui = await $.ui.mount({ plugin: 'control-panel', surface: 'desktop', ...BAND })
+    expect(await ui.find({ text: "✦ Mo's CP" })).toBeDefined()
+    await ui.unmount()
+  })
+
+  test("without a Claude account name the pill falls back to the login name, Windows' too", async ($, on) => {
+    mock.clock(on, { now: EVENING })
+    // Windows has USERNAME and USERPROFILE where macOS and Linux have USER and HOME.
+    const env: Record<string, string> = { USERPROFILE: 'C:\\Users\\moa', USERNAME: 'moa' }
+    on('env.get', ($, e) => ({ value: env[e.name] }))
+    on('fs.read', () => {
+      throw new Error('no config file')
+    })
+    on('ui.render', () => ({ type: 'engine', ref: 0 }))
+
+    const ui = await $.ui.mount({ plugin: 'control-panel', surface: 'desktop', ...BAND })
+    expect(await ui.find({ text: "✦ Moa's CP" })).toBeDefined()
+    await ui.unmount()
+  })
+
   test('the band yields to a survey', async ($, on) => {
     mock.clock(on, { now: EVENING })
     on('env.get', () => ({ value: 'moa' }))
