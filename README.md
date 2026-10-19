@@ -29,10 +29,17 @@ A control panel for your mods. A pill at the right end of the band above the pro
 
 - The panel greets you by the time of day ("Good evening, Moa") on a strip whose colours change
   from morning to night, as the pill's do.
-- Its Launch section has a card for every command your installed mods add, plus Claude Code's own
+- Its **Mods** tab has a card for every command your installed mods add, plus Claude Code's own
   `/diff`. Launch runs that command as if you'd typed it. Skills aren't listed, and nor are mods
-  with nothing to launch.
-- Mods it doesn't know yet get a card too, coloured by their name.
+  with nothing to launch. Mods it doesn't know yet get a card too, coloured by their name.
+- Its **Stats** tab counts your token usage: this conversation, or all conversations today, over
+  the last 7 or 30 days, or all time. It shows conversations, replies, input tokens (split into
+  read from cache, written to cache and new), output tokens, total tokens, your most used model,
+  and output by model for your top five.
+- The counts come from the transcripts Claude Code keeps on each machine. The panel counts each
+  reply once and keeps the totals in `~/.claude/control-panel/stats.json`, so transcripts Claude
+  Code later deletes take nothing away. The first count reads every transcript; after that it
+  reads only what's new. Press 1 or 2 in the panel to switch tabs.
 
 ## Install
 

@@ -264,3 +264,65 @@ export function tileSvg(launchable: Launchable, isLit = false): string {
     `</svg>`
   )
 }
+
+// The Stats tab's pictures. Each is drawn as an Svg because a desktop Box has square corners
+// and no gradient; real text is laid over them so it follows the theme.
+
+/** A stat card's face: a rounded box with a faint grey fill and hairline edge, stretched to its card's width. */
+export function cardSvg(height: number): string {
+  const w = 300
+  return (
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${height}" width="${w}" height="${height}" preserveAspectRatio="none">` +
+    `<rect x="0.5" y="0.5" width="${w - 1}" height="${height - 1}" rx="12" fill="#808080" fill-opacity="0.12" stroke="#808080" stroke-opacity="0.22"/>` +
+    `</svg>`
+  )
+}
+
+/** A switch's chip: a pill, filled when it is the one chosen. */
+export function chipSvg(width: number, height: number, isOn: boolean): string {
+  return (
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}">` +
+    `<rect x="0.5" y="0.5" width="${width - 1}" height="${height - 1}" rx="${(height - 1) / 2}" fill="#808080" fill-opacity="${isOn ? 0.3 : 0}" stroke="#808080" stroke-opacity="${isOn ? 0.35 : 0.18}"/>` +
+    `</svg>`
+  )
+}
+
+/** About how wide a chip's label is at the footnote size, padding included. */
+export function chipWidth(label: string): number {
+  return Math.round(20 + 6.6 * label.length)
+}
+
+/** The line under the chosen tab, in the time of day's colour; `isOn` false draws it clear. */
+export function underlineSvg(width: number, color: string, isOn: boolean): string {
+  return (
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} 3" width="${width}" height="3">` +
+    `<rect width="${width}" height="3" rx="1.5" fill="${color}" fill-opacity="${isOn ? 1 : 0}"/>` +
+    `</svg>`
+  )
+}
+
+/** A hairline across the width, under the tabs. */
+export function hairlineSvg(): string {
+  return (
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 1" width="100" height="1" preserveAspectRatio="none">` +
+    `<rect width="100" height="1" fill="#808080" fill-opacity="0.25"/>` +
+    `</svg>`
+  )
+}
+
+/** A model's bar: `share` (0 to 1) of the width filled, on a faint track; stretched to its row. */
+export function barSvg(share: number, color: string): string {
+  const filled = Math.max(share > 0 ? 0.6 : 0, Math.min(100, share * 100))
+  return (
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 8" width="100" height="8" preserveAspectRatio="none">` +
+    `<rect width="100" height="8" fill="#808080" fill-opacity="0.12"/>` +
+    `<rect width="${filled}" height="8" fill="${color}"/>` +
+    `</svg>`
+  )
+}
+
+/** "15 Aug" from a `YYYY-MM-DD` day. */
+export function shortDay(day: string): string {
+  const [, m, d] = day.split('-').map(Number)
+  return `${d ?? ''} ${MONTHS[(m ?? 1) - 1] ?? ''}`
+}

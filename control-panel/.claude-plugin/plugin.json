@@ -1,6 +1,7 @@
 {
   "name": "control-panel",
-  "version": "0.1.1",
-  "description": "Your control panel: a pill above the prompt, or /cp, opens a panel that greets you and launches your mods.",
-  "author": { "name": "Moa" }
+  "version": "0.2.0",
+  "description": "Your control panel: a pill above the prompt, or /cp, opens a panel that launches your mods and shows your token stats.",
+  "author": { "name": "Moa" },
+  "types": "./types/index.d.ts"
 }
